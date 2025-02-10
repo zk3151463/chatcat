@@ -21,6 +21,8 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/wailsapp/wails/v2 v2.9.2
+	github.com/tidwall/gjson v1.9.3
+	gorm.io/driver/mysql v1.5.0
 	gorm.io/driver/sqlite v1.5.0
 	gorm.io/gorm v1.25.0
 )
