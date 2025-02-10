@@ -7,12 +7,13 @@ import (
 	"chatcat/backend/pkg/cresp"
 	"chatcat/backend/service"
 	"chatcat/backend/service/setting"
+	"strconv"
+	"strings"
+
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/mozillazg/go-pinyin"
 	"github.com/sashabaranov/go-openai"
 	"gorm.io/gorm"
-	"strconv"
-	"strings"
 )
 
 type Service struct {
@@ -330,7 +331,7 @@ func (s *Service) CompletionStream(prompt, clientId string) *cresp.Response {
 	generalInfo := setting.New(s.App).GetGeneralInfo()
 	data := generalInfo.Data.(model.Setting)
 	if data.ApiKey == "" {
-		return cresp.Fail("Chatcat Warm Reminder: You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.")
+		return cresp.Fail("Chatcat Warm Reminder0: You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.")
 	}
 	GPTPkg = cgpt.New(data.ApiKey, s.App)
 	gpt := GPTPkg.WithProxy(data.ProxyUrl).
@@ -341,9 +342,9 @@ func (s *Service) CompletionStream(prompt, clientId string) *cresp.Response {
 	if err := gpt.Error(); err != nil {
 		return cresp.Fail(err.Error())
 	}
-	if cgpt.MaxTokens <= 0 {
-		return cresp.Fail("Chatcat Warm Reminder: Your token is running low, Please start a new conversation.")
-	}
+	// if cgpt.MaxTokens <= 0 {
+	// 	return cresp.Fail("Chatcat Warm Reminder2: Your token is running low, Please start a new conversation.")
+	// }
 	gpt.WithCompletionRequest().
 		CompletionStream(clientId)
 
@@ -360,7 +361,7 @@ func (s *Service) ChatCompletionStream(messages []openai.ChatCompletionMessage, 
 	generalInfo := setting.New(s.App).GetGeneralInfo()
 	data := generalInfo.Data.(model.Setting)
 	if data.ApiKey == "" {
-		return cresp.Fail("Chatcat Warm Reminder: You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.")
+		return cresp.Fail("Chatcat Warm Reminder3: You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.")
 	}
 	GPTPkg = cgpt.New(data.ApiKey, s.App)
 	gpt := GPTPkg.WithProxy(data.ProxyUrl).
@@ -374,9 +375,9 @@ func (s *Service) ChatCompletionStream(messages []openai.ChatCompletionMessage, 
 	if err := gpt.Error(); err != nil {
 		return cresp.Fail(err.Error())
 	}
-	if cgpt.MaxTokens <= 0 {
-		return cresp.Fail("Chatcat Warm Reminder: Your token is running low, Please start a new conversation.")
-	}
+	// if cgpt.MaxTokens <= 0 {
+	// return cresp.Fail("Chatcat Warm Reminder4: Your token is running low, Please start a new conversation.")
+	// }
 	gpt.WithChatCompletionRequest().
 		ChatCompletionStream(clientId)
 

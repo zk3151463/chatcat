@@ -11,9 +11,16 @@
               {{ $t('settings.general.apiKey') }}
             </template>
           </a-input-password>
-          <a-alert type="warning">
+          <!-- <a-alert type="warning">
             <a-link @click="handleNotice">{{ $t('settings.general.alertTips') }}</a-link>
-          </a-alert>
+          </a-alert> -->
+          <a-space>
+            {{ $t('settings.general.apiPlatform') }}:
+            <a-select v-model="form.chat_platform" :style="{width:'383px'}" @change="handlePlatformChange"
+                      :placeholder="$t('settings.general.apiPlatform.placeholder')">
+              <a-option v-for="(item, index) in platformList" :key="index">{{ item }}</a-option>
+            </a-select>
+          </a-space>
           <a-space>
             {{ $t('settings.general.apiModel') }}:
             <a-select v-model="form.chat_model" :style="{width:'383px'}" @change="handleModelChange"
@@ -122,6 +129,7 @@ const form = ref({
   api_key: '',
   chat_model: '',
   ask_model: '',
+  ask_platform: '',
   language: locale.value,
   theme: 1,
   proxy_url: '',
@@ -189,7 +197,8 @@ const advancedList = reactive([
   //   marks: {1: '1', 10: '10'},
   // },
 ])
-const modelList = reactive(['gpt-3.5-turbo', 'gpt-3.5-turbo-0301', 'gpt-4', 'gpt-4-0314', 'gpt-4-32k', 'gpt-4-32k-0314'])
+var modelList = reactive([])
+const platformList = reactive(["ollama","腾讯混元","智谱AI","通义千问","自定义"])
 
 watch(() => locale.value, () => {
   advancedList[0].title = t("settings.advanced.temperature");
@@ -236,6 +245,22 @@ const handleCancelDrawer = () => {
 }
 const handleModelChange = (e) => {
   form.value.ask_model = e;
+  handleGeneralSave()
+}
+const handlePlatformChange= (e) => {
+  form.value.ask_platform = e;
+  form.value.chat_model=''
+  if(e=="ollama"){
+    modelList=reactive(["qwen2","llama3"])
+  }else if(e=="腾讯混元"){
+      modelList=reactive(["hunyuan-lite","hunyuan-turbo","hunyuan-pro","hunyuan-vision","hunyuan-embedding"])
+  }else if(e=="智谱AI"){
+      modelList=reactive(["glm-4-plus","glm-4-flash","glm-4-flashx","glm-4-air"])
+  }else if(e=="通义千问"){
+      modelList=reactive(["qwen-long","qwen-max","qwen-plus","qwen-turbo"])
+  }else if(e=="自定义"){
+      modelList=reactive([""])
+  }
   handleGeneralSave()
 }
 const handleChangeLocale = (e) => {

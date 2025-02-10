@@ -5,13 +5,11 @@ import (
 	"chatcat/backend/service"
 	"errors"
 	"fmt"
+	"io"
+	"sync"
+
 	"github.com/pkoukk/tiktoken-go"
 	"github.com/sashabaranov/go-openai"
-	"io"
-	"net/http"
-	"net/url"
-	"sync"
-	"time"
 )
 
 /*
@@ -124,7 +122,7 @@ func (g *GPT) WithMaxTokens(tokens int) *GPT {
 		if prompt == "" {
 			tikToken, err = g.NumTokensFromMessages(Messages)
 			if err != nil {
-				g.err = errors.New("Chatcat Warm Reminder: Token calculation failed." + err.Error())
+				g.err = errors.New("Chatcat Warm Reminder1: Token calculation failed." + err.Error())
 			}
 		} else {
 			tikToken, err = g.getTikTokenByEncoding(prompt)
@@ -150,20 +148,21 @@ func (g *GPT) WithMaxTokens(tokens int) *GPT {
 // @author cx
 func (g *GPT) WithProxy(rawUrl string) *GPT {
 	config := openai.DefaultConfig(g.Token)
-	proxy := http.ProxyFromEnvironment
-	if rawUrl != "" {
-		proxyUrl, err := url.Parse(rawUrl)
-		if err != nil {
-			panic(err)
-		}
-		proxy = http.ProxyURL(proxyUrl)
-	}
-	config.HTTPClient = &http.Client{
-		Transport: &http.Transport{
-			Proxy: proxy,
-		},
-		Timeout: time.Second * 30,
-	}
+	// proxy := http.ProxyFromEnvironment
+	// if rawUrl != "" {
+	// 	proxyUrl, err := url.Parse(rawUrl)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	proxy = http.ProxyURL(proxyUrl)
+	// }
+	// config.HTTPClient = &http.Client{
+	// 	Transport: &http.Transport{
+	// 		Proxy: proxy,
+	// 	},
+	// 	Timeout: time.Second * 30,
+	// }
+	config.BaseURL = rawUrl
 	g.Client = openai.NewClientWithConfig(config)
 	return g
 }
@@ -191,26 +190,45 @@ func (g *GPT) WithChatCompletionRequest() *GPT {
 	return g
 }
 
+// WithCompletionRequest 是 GPT 结构体的一个方法，用于设置并返回一个包含完成请求的 GPT 实例。
 func (g *GPT) WithCompletionRequest() *GPT {
+	// 设置 g 的 CompletionRequest 字段，该字段是一个 openai.CompletionRequest 结构体。
+	// 该结构体包含了生成文本所需的多个参数。
 	g.CompletionRequest = openai.CompletionRequest{
-		Model:            Model,
-		Prompt:           Prompt,
-		Suffix:           Suffix,
-		MaxTokens:        MaxTokens,
-		Temperature:      Temperature,
-		TopP:             TopP,
-		N:                N,
-		Stream:           Stream,
-		LogProbs:         LogProbs,
-		Echo:             Echo,
-		Stop:             Stop,
-		PresencePenalty:  PresencePenalty,
+		// Model 指定了使用的模型，例如 "text-davinci-003"。
+		Model: Model,
+		// Prompt 是生成文本的输入提示。
+		Prompt: Prompt,
+		// Suffix 是生成文本时添加的后缀。
+		Suffix: Suffix,
+		// MaxTokens 指定了生成的最大令牌数。
+		MaxTokens: MaxTokens,
+		// Temperature 控制生成文本的多样性，值越大，生成的文本越随机。
+		Temperature: Temperature,
+		// TopP 控制生成的多样性，值越大，生成的文本越随机。
+		TopP:   TopP,
+		N:      N,
+		Stream: Stream,
+		// Stream 指定是否以流的形式生成文本。
+		LogProbs: LogProbs,
+		// LogProbs 指定返回每个生成的令牌的对数概率。
+		Echo: Echo,
+		// Echo 指定是否在返回的文本中包含输入提示。
+		Stop: Stop,
+		// Stop 是一个字符串列表，指定生成文本时停止的标记。
+		PresencePenalty: PresencePenalty,
+		// PresencePenalty 控制生成文本时对重复内容的惩罚。
 		FrequencyPenalty: FrequencyPenalty,
-		BestOf:           BestOf,
-		LogitBias:        LogitBias,
-		User:             User,
+		// FrequencyPenalty 控制生成文本时对频率高的内容的惩罚。
+		BestOf: BestOf,
+		// BestOf 指定从多个生成的文本中选择最佳的一个。
+		LogitBias: LogitBias,
+		// LogitBias 是一个映射，用于控制生成文本时每个令牌的权重。
+		User: User,
+		// User 是一个字符串，用于标识请求的用户。
 	}
 	return g
+	// 返回设置好的 GPT 实例。
 }
 
 // ChatCompletionStream
@@ -396,33 +414,33 @@ func (g *GPT) getTikTokenByEncoding(prompt string) (int, error) {
 // @return numTokens
 // @author cx
 func (g *GPT) NumTokensFromMessages(messages []openai.ChatCompletionMessage) (numTokens int, err error) {
-	encoding := g.getAvailableEncodingModel(Model)
-	tkm, err := tiktoken.GetEncoding(encoding)
-	if err != nil {
-		fmt.Println(fmt.Errorf("EncodingForModel: %v", err))
-		return
-	}
-	var tokensPerMessage int
-	var tokensPerName int
-	if Model == openai.GPT3Dot5Turbo0301 || Model == openai.GPT3Dot5Turbo {
-		tokensPerMessage = 4
-		tokensPerName = -1
-	} else if Model == openai.GPT40314 || Model == openai.GPT4 {
-		tokensPerMessage = 3
-		tokensPerName = 1
-	} else {
-		fmt.Println("Warning: model not found. Using cl100k_base encoding.")
-		tokensPerMessage = 3
-		tokensPerName = 1
-	}
-	for _, message := range messages {
-		numTokens += tokensPerMessage
-		numTokens += len(tkm.Encode(message.Content, nil, nil))
-		numTokens += len(tkm.Encode(message.Role, nil, nil))
-		if message.Name != "" {
-			numTokens += tokensPerName
-		}
-	}
+	// encoding := g.getAvailableEncodingModel(Model)
+	// tkm, err := tiktoken.GetEncoding(encoding)
+	// if err != nil {
+	// 	fmt.Println(fmt.Errorf("EncodingForModel: %v", err))
+	// 	return
+	// }
+	// var tokensPerMessage int
+	// var tokensPerName int
+	// if Model == openai.GPT3Dot5Turbo0301 || Model == openai.GPT3Dot5Turbo {
+	// 	tokensPerMessage = 4
+	// 	tokensPerName = -1
+	// } else if Model == openai.GPT40314 || Model == openai.GPT4 {
+	// 	tokensPerMessage = 3
+	// 	tokensPerName = 1
+	// } else {
+	// 	fmt.Println("Warning: model not found. Using cl100k_base encoding.")
+	// 	tokensPerMessage = 3
+	// 	tokensPerName = 1
+	// }
+	// for _, message := range messages {
+	// 	numTokens += tokensPerMessage
+	// 	numTokens += len(tkm.Encode(message.Content, nil, nil))
+	// 	numTokens += len(tkm.Encode(message.Role, nil, nil))
+	// 	if message.Name != "" {
+	// 		numTokens += tokensPerName
+	// 	}
+	// }
 	numTokens += 3
 	return numTokens, nil
 }
