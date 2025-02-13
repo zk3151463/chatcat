@@ -5,25 +5,27 @@
       <div class="general-div scrollbar">
         <a-space direction="vertical" size="medium">
           <a-typography-text>{{ $t('settings.general.keyTips') }}</a-typography-text>
-          <a-input-password v-model="form.api_key" :style="{width:'460px'}" @blur="handleGeneralSave"
-                            placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" allow-clear>
-            <template #prepend>
-              {{ $t('settings.general.apiKey') }}
-            </template>
-          </a-input-password>
+        
           <!-- <a-alert type="warning">
             <a-link @click="handleNotice">{{ $t('settings.general.alertTips') }}</a-link>
           </a-alert> -->
           <a-space>
             {{ $t('settings.general.apiPlatform') }}:
-            <a-select v-model="form.chat_platform" :style="{width:'383px'}" @change="handlePlatformChange"
+            <a-select v-model="form.chat_platform" :style="{width:'460px'}" @change="handlePlatformChange"
                       :placeholder="$t('settings.general.apiPlatform.placeholder')">
               <a-option v-for="(item, index) in platformList" :key="index">{{ item }}</a-option>
             </a-select>
           </a-space>
           <a-space>
+            {{ $t('settings.general.apiKey') }}
+            <a-input-password v-model="form.api_key" :style="{width:'460px'}" @blur="handleGeneralSave"
+                              placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" allow-clear>
+            
+            </a-input-password>
+          </a-space>
+          <a-space>
             {{ $t('settings.general.apiModel') }}:
-            <a-select v-model="form.chat_model" :style="{width:'383px'}" @change="handleModelChange"
+            <a-select v-model="form.chat_model" :style="{width:'460px'}" @change="handleModelChange"
                       :placeholder="$t('settings.general.apiModel.placeholder')">
               <a-option v-for="(item, index) in modelList" :key="index">{{ item }}</a-option>
             </a-select>
