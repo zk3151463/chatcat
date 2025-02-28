@@ -19,12 +19,12 @@
             showCollapseButton
             @menu-item-click="handleMenuClick"
         >
-          <a-menu-item key="1" style="border: 1px solid #f5f5f5;">
+          <!-- <a-menu-item key="1" style="border: 1px solid #f5f5f5;">
             <template #icon>
               <IconBug></IconBug>
             </template>
             {{ $t('settings.contact') }}
-          </a-menu-item>
+          </a-menu-item> -->
           <a-trigger trigger="click" position="lb" auto-fit-position :unmount-on-close="true">
             <a-menu-item key="2" style="border: 1px solid #f5f5f5;">
               <template #icon>

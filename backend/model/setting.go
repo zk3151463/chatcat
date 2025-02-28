@@ -3,6 +3,8 @@ package model
 type Setting struct {
 	BaseModel
 	ApiKey           string `gorm:"column:api_key;type:text" json:"api_key"`
+	ChatPlatform     string `gorm:"column:chat_platform;type:text" json:"chat_platform"`         // 对话平台
+	IsCustomize      int    `gorm:"column:is_customize;type:int" json:"is_customize"`            // 类型平台
 	ChatModel        string `gorm:"column:chat_model;type:text" json:"chat_model"`               // 对话模型
 	AskModel         string `gorm:"column:ask_model;type:text" json:"ask_model"`                 // 问答模型
 	Language         string `gorm:"column:language;type:text" json:"language"`                   // 默认语言

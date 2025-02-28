@@ -6,7 +6,7 @@
         <icon-close-circle-fill @click="handleClose" :style="{color: 'var(--color-text-5)'}" size="40"/>
       </div>
       <a-layout class="layout-container">
-        <a-layout-sider collapsible hide-trigger :collapsed="false" :style="{ width: '170px', height: '236px', border: '1px solid var(--color-border-2)' }">
+        <a-layout-sider collapsible hide-trigger :collapsed="false" :style="{ width: '170px', height: '156px', border: '1px solid var(--color-border-2)' }">
           <a-menu
               :default-selected-keys="tabName"
               :style="{ width: '170px' }"
@@ -16,10 +16,10 @@
               <icon-settings/>
               {{ $t('settings.general') }}
             </a-menu-item>
-            <a-menu-item key="2">
+            <!-- <a-menu-item key="2">
               <icon-sync/>
               {{ $t('settings.datasync') }}
-            </a-menu-item>
+            </a-menu-item> -->
             <a-menu-item key="3">
               <icon-message />
               {{ $t('settings.chat') }}
@@ -28,10 +28,10 @@
               <icon-select-all/>
               {{ $t('settings.prompt') }}
             </a-menu-item>
-            <a-menu-item key="5">
+            <!-- <a-menu-item key="5">
               <icon-user-group />
               {{ $t('settings.contact') }}
-            </a-menu-item>
+            </a-menu-item> -->
             <!--          <a-menu-item key="6">-->
             <!--            <icon-download/>-->
             <!--            {{ $t('settings.releaseNotes') }}-->

@@ -60,6 +60,7 @@ type GPT struct {
 }
 
 func New(token string, app *service.App) *GPT {
+	fmt.Println("token", token)
 	once.Do(func() {
 		gpt = &GPT{
 			App:    app,
@@ -246,7 +247,7 @@ func (g *GPT) ChatCompletionStream(clientId string) {
 	if err != nil {
 		g.App.WsPushChan <- service.PushResp{
 			Code: -1,
-			Data: fmt.Sprintf("Chatcat Warm Reminder: %s", err.Error()),
+			Data: fmt.Sprintf("Chatcat Warm Reminder12: %s", err.Error()),
 		}
 		return
 	}
@@ -265,7 +266,7 @@ func (g *GPT) ChatCompletionStream(clientId string) {
 			if err != nil {
 				g.App.WsPushChan <- service.PushResp{
 					Code: -1,
-					Data: fmt.Sprintf("Chatcat Warm Reminder: %s", err.Error()),
+					Data: fmt.Sprintf("Chatcat Warm Reminder2: %s", err.Error()),
 				}
 				return
 			}

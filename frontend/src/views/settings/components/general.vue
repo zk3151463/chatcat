@@ -25,11 +25,20 @@
           </a-space>
           <a-space>
             {{ $t('settings.general.apiModel') }}:
-            <a-select v-model="form.chat_model" :style="{width:'460px'}" @change="handleModelChange"
+            <a-select v-if="form.is_customize===1" v-model="form.chat_model" :style="{width:'460px'}" @change="handleModelChange"
                       :placeholder="$t('settings.general.apiModel.placeholder')">
               <a-option v-for="(item, index) in modelList" :key="index">{{ item }}</a-option>
             </a-select>
+            <a-input v-if="form.is_customize===2" v-model="form.chat_model" :style="{width:'460px'}" @blur="handleModelChange"
+                              :placeholder="$t('settings.general.apiModel.placeholder')" allow-clear>
+
+            </a-input>
           </a-space>
+          <a-card class="card-container" :title="$t('settings.proxy')" :bordered="false"
+                  :header-style="{borderColor: 'var(--color-fill-2)', paddingLeft: '0px'}">
+            <a-input v-model="form.proxy_url" @blur="handleGeneralSave" :placeholder="$t('settings.proxy.placeholder')"
+                     :style="{width:'460px'}"></a-input>
+          </a-card>
         </a-space>
         <!-- language -->
         <a-card class="card-container" :title="$t('settings.language')" :bordered="false"
@@ -45,11 +54,7 @@
           </a-select>
         </a-card>
         <!-- proxy -->
-        <a-card class="card-container" :title="$t('settings.proxy')" :bordered="false"
-                :header-style="{borderColor: 'var(--color-fill-2)', paddingLeft: '0px'}">
-          <a-input v-model="form.proxy_url" @blur="handleGeneralSave" :placeholder="$t('settings.proxy.placeholder')"
-                   :style="{width:'460px'}"></a-input>
-        </a-card>
+
         <!-- theme -->
         <a-card class="card-container" :title="$t('settings.theme')" :bordered="false"
                 :header-style="{borderColor: 'var(--color-fill-2)', paddingLeft: '0px'}">
@@ -118,7 +123,7 @@ import GeneralDrawer from "@views/settings/components/general-drawer.vue";
 import {LOCALE_OPTIONS} from "@/locale";
 import useLocale from "@/hooks/locale";
 import {useI18n} from "vue-i18n";
-import {GetGeneralInfo, SetGeneralData} from "../../../../wailsjs/go/setting/Service.js";
+import {GetGeneralInfo, SetGeneralData,GeOLLamaModel} from "../../../../wailsjs/go/setting/Service.js";
 import {Message} from "@arco-design/web-vue";
 
 const {t, locale} = useI18n();
@@ -132,8 +137,10 @@ const form = ref({
   chat_model: '',
   ask_model: '',
   ask_platform: '',
+  chat_platform:'',
   language: locale.value,
   theme: 1,
+  is_customize: 1,
   proxy_url: '',
   account: '',
   access_token: '',
@@ -252,15 +259,32 @@ const handleModelChange = (e) => {
 const handlePlatformChange= (e) => {
   form.value.ask_platform = e;
   form.value.chat_model=''
-  if(e=="ollama"){
+  form.value.is_customize=1
+  if(e==="ollama"){
+    form.value.proxy_url="http://localhost:11434/v1"
+    GeOLLamaModel("http://localhost:11434/api/tags").then(res=>{
+      let models=JSON.parse(res.data).models
+      var modelslist1=[]
+      for (var item of models) {
+        console.log(item)
+        modelslist1.push(item.model)
+      }
+      modelList=reactive(modelslist1)
+      console.log("ollama模型",res)
+   })
+
     modelList=reactive(["qwen2","llama3"])
-  }else if(e=="腾讯混元"){
+  }else if(e==="腾讯混元"){
+    form.value.proxy_url="https://api.hunyuan.cloud.tencent.com/v1"
       modelList=reactive(["hunyuan-lite","hunyuan-turbo","hunyuan-pro","hunyuan-vision","hunyuan-embedding"])
-  }else if(e=="智谱AI"){
+  }else if(e==="智谱AI"){
+    form.value.proxy_url="https://open.bigmodel.cn/api/paas/v4"
       modelList=reactive(["glm-4-plus","glm-4-flash","glm-4-flashx","glm-4-air"])
-  }else if(e=="通义千问"){
+  }else if(e==="通义千问"){
+    form.value.proxy_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
       modelList=reactive(["qwen-long","qwen-max","qwen-plus","qwen-turbo"])
-  }else if(e=="自定义"){
+  }else if(e==="自定义"){
+     form.value.is_customize=2
       modelList=reactive([""])
   }
   handleGeneralSave()
@@ -270,6 +294,19 @@ const handleChangeLocale = (e) => {
   changeLocale(e);
 }
 const handleGeneralSave = (e) => {
+  if(form.value.chat_platform==="ollama"){
+
+    GeOLLamaModel(form.value.proxy_url.replace("/v1", "")+"/api/tags").then(res=>{
+      let models=JSON.parse(res.data).models
+      var modelslist1=[]
+      for (var item of models) {
+        console.log(item)
+        modelslist1.push(item.model)
+      }
+      modelList=reactive(modelslist1)
+      console.log("ollama模型",res)
+    })
+  }
   advancedList.forEach((item) => {
     if (item.tag !== 'max_tokens') {
       form.value[item.tag] = item.value.toString();
@@ -306,11 +343,33 @@ const handleSliderChange = (e, row) => {
 const initGeneralInfo = (e) => {
   GetGeneralInfo().then(res => {
     if (res.code === 0) {
+      console.log(res.data)
+      console.log(advancedList)
+
       form.value = res.data;
       advancedList[0].value = parseFloat(form.value.temperature);
       advancedList[1].value = form.value.max_tokens;
       advancedList[2].value = parseFloat(form.value.presence_penalty);
       advancedList[3].value = parseFloat(form.value.frequency_penalty);
+      if(form.value.chat_platform==="ollama"){
+        GeOLLamaModel(form.value.proxy_url.replace("/v1", "")+"/api/tags").then(res=>{
+          let models=JSON.parse(res.data).models
+          var modelslist1=[]
+
+          for (var item of models) {
+            console.log(item)
+            modelslist1.push(item.model)
+          }
+          modelList=reactive(modelslist1)
+          console.log("ollama模型",modelslist1)
+        })
+      }else if(form.value.chat_platform==="腾讯混元"){
+        modelList=reactive(["hunyuan-lite","hunyuan-turbo","hunyuan-pro","hunyuan-vision","hunyuan-embedding"])
+      }else if(form.value.chat_platform==="智谱AI"){
+        modelList=reactive(["glm-4-plus","glm-4-flash","glm-4-flashx","glm-4-air"])
+      }else if(form.value.chat_platform==="通义千问"){
+        modelList=reactive(["qwen-long","qwen-max","qwen-plus","qwen-turbo"])
+      }
     }
   })
 }

@@ -7,6 +7,8 @@ export function FeedBack(arg1:model.FeedBack):Promise<cresp.Response>;
 
 export function Fullscreen():Promise<void>;
 
+export function GeOLLamaModel(arg1:string):Promise<cresp.Response>;
+
 export function GetFeedBackUrl(arg1:model.FeedbackReq):Promise<cresp.Response>;
 
 export function GetGeneralInfo():Promise<cresp.Response>;

@@ -10,6 +10,10 @@ export function Fullscreen() {
   return window['go']['setting']['Service']['Fullscreen']();
 }
 
+export function GeOLLamaModel(arg1) {
+  return window['go']['setting']['Service']['GeOLLamaModel'](arg1);
+}
+
 export function GetFeedBackUrl(arg1) {
   return window['go']['setting']['Service']['GetFeedBackUrl'](arg1);
 }

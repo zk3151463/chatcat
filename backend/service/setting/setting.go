@@ -2,6 +2,7 @@ package setting
 
 import (
 	"chatcat/backend/model"
+	"chatcat/backend/pkg/chttp"
 	"chatcat/backend/pkg/cresp"
 	"chatcat/backend/service"
 	"fmt"
@@ -80,14 +81,21 @@ func (s *Service) FeedBack(data model.FeedBack) *cresp.Response {
 // @param data
 // @return *cresp.Response
 // @author cx
+// 根据传入的FeedbackReq数据，生成一个反馈的URL，并返回一个Response对象
 func (s *Service) GetFeedBackUrl(data model.FeedbackReq) *cresp.Response {
+	// 初始化一个字符串，用于存储反馈的内容
 	body := "- [ ] I'm sure this does not appear in [the issue list of the repository](https://github.com/MQEnergy/chatcat/issues) "
+	// 判断反馈的类型
 	if data.IssueType == 1 {
+		// 如果是问题反馈，则将反馈的内容格式化为字符串
 		body += fmt.Sprintf("%s ## Basic Info:%s - Version: %s ## Steps to reproduce: %s", "%0A", "%0A", data.Version+"%0A", "%0A"+data.Body+"%0A")
 	} else {
+		// 如果是建议反馈，则将反馈的内容格式化为字符串
 		body += fmt.Sprintf("%s ## Basic Info:%s - Version: %s ## What is expected?: %s", "%0A", "%0A", data.Version+"%0A", "%0A"+data.Body+"%0A")
 	}
+	// 解析生成的URL
 	parseUrl, _ := url.Parse("https://github.com/" + s.App.Cfg.Github.Owner + "/" + s.App.Cfg.Github.Repo + "/issues/new?title=" + data.Title + "&body=" + body)
+	// 返回一个Response对象，其中包含生成的URL
 	return cresp.Success(parseUrl.String())
 }
 
@@ -140,4 +148,11 @@ func (s *Service) IsWindows() bool {
 		return false
 	}
 	return true
+}
+func (s *Service) GeOLLamaModel(urls string) *cresp.Response {
+	var releases, err = chttp.Request("GET", urls, "")
+	if err != nil {
+		return cresp.Fail(err.Error())
+	}
+	return cresp.Success(releases)
 }

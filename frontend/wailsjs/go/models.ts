@@ -174,6 +174,8 @@ export namespace model {
 	    created_at: number;
 	    updated_at: number;
 	    api_key: string;
+	    chat_platform: string;
+	    is_customize: number;
 	    chat_model: string;
 	    ask_model: string;
 	    language: string;
@@ -200,6 +202,8 @@ export namespace model {
 	        this.created_at = source["created_at"];
 	        this.updated_at = source["updated_at"];
 	        this.api_key = source["api_key"];
+	        this.chat_platform = source["chat_platform"];
+	        this.is_customize = source["is_customize"];
 	        this.chat_model = source["chat_model"];
 	        this.ask_model = source["ask_model"];
 	        this.language = source["language"];

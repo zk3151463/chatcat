@@ -9,11 +9,13 @@ import (
 func MockSetting(db *gorm.DB) {
 	db.Create(&model.Setting{
 		ApiKey:           "",
-		AskModel:         "gpt-3.5-turbo",
-		ChatModel:        "gpt-3.5-turbo",
+		ChatPlatform:     "ollama",
+		IsCustomize:      1,
+		AskModel:         "qwen2",
+		ChatModel:        "qwen2",
 		Language:         "zh-CN",
 		Theme:            1,
-		ProxyUrl:         "http://127.0.0.1:7890",
+		ProxyUrl:         "http://localhost:11434/v1",
 		Account:          "",
 		AccessToken:      "",
 		IsSync:           2,
